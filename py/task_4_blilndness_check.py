@@ -1,24 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Task 4: ISL Coverage Analysis (Corrected)
-Исправленная версия с учетом вращения Земли (ECI->ECEF) и векторизацией.
-"""
-
 import json
 import argparse
 import sys
 import os
-import math
 import numpy as np
-from typing import Set, List
-
-# Попытка импорта constellation
-try:
-    from constellation import Constellation, EarthConstants
-except ImportError:
-    print("Ошибка: Файл constellation.py не найден.")
-    sys.exit(1)
+from constellation import Constellation, EarthConstants
 
 # Угловая скорость вращения Земли [рад/с]
 EARTH_ROTATION_RATE = 7.2921158553e-5

@@ -5,6 +5,14 @@ from typing import NamedTuple, List
 import numpy as np
 
 
+# Временно оставим такой конструкт для обратной совместимости, но пометим как устаревший
+class Parameters(object):
+    pass
+Const = Parameters()
+Const.earthRadius = 6378135      # Экваториальный радиус Земли [m]
+Const.earthGM = 3.986004415e+14  # Гравитационный параметр Земли [m3/s2]
+Const.earthJ2 = 1.082626e-3      # Вторая зональная гармоника геопотенциала
+
 # Константы принято писать в UPPER_CASE
 @dataclass(frozen=True)
 class EarthConstants:
@@ -29,6 +37,9 @@ class Walker(NamedTuple):
 class WalkerGroup(Walker):
     def get_total_sat_count(self) -> int:
         return self.sats_per_plane * self.plane_count
+
+    def getTotalSatCount(self) -> int:
+        return self.get_total_sat_count()
 
     def get_initial_elements(self) -> np.ndarray:
         start_raan_rad = np.deg2rad(self.start_raan)
@@ -55,6 +66,9 @@ class WalkerGroup(Walker):
                 idx += 1
 
         return elements
+
+    def getInitialElements(self) -> np.ndarray:
+        return self.get_initial_elements()
 
 
 class Constellation:
@@ -90,6 +104,9 @@ class Constellation:
         if not found:
             raise ValueError(f'Группировка "{name_code}" не найдена в файле.')
 
+    def loadFromConfig(self, name_code: str):
+        self.load_from_config(name_code)
+
     def get_initial_state(self):
         self.elements = np.zeros((self.total_sat_count, 6))
         shift = 0
@@ -99,6 +116,9 @@ class Constellation:
             ending = shift + count
             self.elements[shift:ending, :] = group.get_initial_elements()
             shift = ending
+
+    def getInitialState(self):
+        self.get_initial_state()
 
     def propagate_j2(self, epochs: list):
         self.state_eci = np.zeros((self.total_sat_count, 3, len(epochs)))
@@ -128,3 +148,6 @@ class Constellation:
             epoch_state_z = sma * (np.sin(aol) * np.sin(inclination))
 
             self.state_eci[:, :, i] = np.array([epoch_state_x, epoch_state_y, epoch_state_z]).T
+
+    def propagateJ2(self, epochs: list):
+        self.propagate_j2(epochs)
